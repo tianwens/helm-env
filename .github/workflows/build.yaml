@@ -1,0 +1,72 @@
+name: build
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  DOCKERHUB_USERNAME: tianwens
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set outputs
+        id: vars
+        # run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "sha_short=`git rev-parse --short HEAD`" >> $GITHUB_OUTPUT
+      - name: Check outputs
+        run: echo ${{ steps.vars.outputs.sha_short }}  # 测试打印看一下是否正常
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Build backend and push
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     context: backend
+      #     push: true
+      #     # platforms: linux/amd64,linux/arm64
+      #     platforms: linux/amd64
+      #     tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ steps.vars.outputs.sha_short }}
+      - name: Build frontend and push
+        uses: docker/build-push-action@v3
+        with:
+          context: frontend
+          push: true
+          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
+          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
+
+      # #以下在新版本的github action中已废弃，报错类似，意思是不要添加如下，github action集成了该功能，删除如下或注释掉即正常：
+      # # updateFile is deprected, the updated content will be written to the file by default from now on
+      # # Error: HttpError: Resource not accessible by integration
+      # - name: Update helm values.yaml
+      #   uses: fjogeleit/yaml-update-action@main
+      #   with:
+      #     valueFile: 'helm/values.yaml'
+      #     commitChange: true
+      #     branch: main
+      #     updateFile: true
+      #     message: 'Update Image Version to ${{ steps.vars.outputs.sha_short }}'
+      #     changes: |
+      #       {
+      #         "backend.tag": "${{ steps.vars.outputs.sha_short }}",
+      #         "frontend.tag": "${{ steps.vars.outputs.sha_short }}"
+      #       }
+
+      # 以下不起效
+      # - name: Update Version
+      #   run: |
+      #       git_hash=$(git rev-parse --short "$GITHUB_SHA")
+      #       version=$(grep tag: helm/values.yaml | awk -F": '" '{print $2}' | head -1 | awk -F"'" '{print $1}')
+      #       # version=$(grep -m 1 tag: helm/values.yaml | awk -F": '" '{print $2}' | awk -F"'" '{print $1}')
+      #       sed -i "s/$version/${GITHUB_REF##*/}-$git_hash/" helm/values.yaml

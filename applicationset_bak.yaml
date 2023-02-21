@@ -9,7 +9,7 @@ spec:
       repoURL: "https://github.com/tianwens/helm-env.git"
       revision: HEAD
       files:
-      - path: "env/*/values.yaml"
+      - path: "helm-env/env/*/values.yaml"
   template:
     metadata:
       name: "{{path.basename}}"
@@ -18,7 +18,7 @@ spec:
       source:
         repoURL: "https://github.com/tianwens/helm-env.git"
         targetRevision: HEAD
-        path: "."
+        path: "helm-env"
         helm:
           valueFiles:
           - "env/{{path.basename}}/values.yaml"
