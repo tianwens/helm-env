@@ -44,7 +44,8 @@ jobs:
           push: true
           # platforms: linux/amd64,linux/arm64
           platforms: linux/amd64
-          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
+          # tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:latest  # 这里方便起见直接指定latest版本来测试，相应的要修改env/各目录下的values.yaml的tag: latest
 
       # #以下在新版本的github action中已废弃，报错类似，意思是不要添加如下，github action集成了该功能，删除如下或注释掉即正常：
       # # updateFile is deprected, the updated content will be written to the file by default from now on
