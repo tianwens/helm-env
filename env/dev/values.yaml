@@ -1,0 +1,3 @@
+frontend:
+  image: tianwens/frontend
+  tag: latest-env

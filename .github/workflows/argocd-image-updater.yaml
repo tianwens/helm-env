@@ -6,7 +6,7 @@ on:
       - '*'
 
 env:
-  DOCKERHUB_USERNAME: lyzhang1999
+  DOCKERHUB_USERNAME: tianwens
 
 jobs:
   docker:
@@ -16,7 +16,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Set outputs
         id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        # run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "sha_short=`git rev-parse --short HEAD`" >> $GITHUB_OUTPUT
       - name: Extract branch name
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
@@ -35,12 +36,14 @@ jobs:
         with:
           context: backend
           push: true
-          platforms: linux/amd64,linux/arm64
+          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ steps.branch.outputs.branch }}-${{ steps.vars.outputs.sha_short }}
       - name: Build frontend and push
         uses: docker/build-push-action@v3
         with:
           context: frontend
           push: true
-          platforms: linux/amd64,linux/arm64
+          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.branch.outputs.branch }}-${{ steps.vars.outputs.sha_short }}
