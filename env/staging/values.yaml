@@ -1,3 +1,0 @@
-frontend:
-  image: tianwens/frontend
-  tag: latest  # 配合.github/workflows/build.yaml的写死latest版本来测试
